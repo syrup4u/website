@@ -1,2 +1,1 @@
-# website
-A fork of https://jonbarron.info/ for personal use
+This is the source code to Jintong Liu's public academic website. The original source is: https://github.com/jonbarron/website.
