@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expenses</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #222; }
+
+.header { background: #1a1a2e; color: white; padding: 2rem; text-align: center; }
+.header h1 { font-size: 2.4rem; font-weight: 800; }
+.header p { color: #9ab; margin-top: 0.4rem; font-size: 1rem; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+.day-section { background: white; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.09); margin-bottom: 1.2rem; overflow: hidden; }
+.day-header { background: #16213e; color: white; padding: 0.85rem 1.4rem; display: flex; justify-content: space-between; align-items: center; }
+.day-header h2 { font-size: 1rem; font-weight: 600; }
+.day-header .day-sub { font-size: 0.78rem; color: #7a9cc0; margin-top: 2px; }
+.day-total { font-size: 1rem; font-weight: 700; color: #5dd; white-space: nowrap; }
+
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+thead th { text-align: left; padding: 8px 14px; font-size: 0.72rem; text-transform: uppercase; letter-spacing: .5px; color: #999; border-bottom: 2px solid #f0f0f0; }
+tbody td { padding: 9px 14px; border-bottom: 1px solid #f5f5f5; vertical-align: top; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #fafbff; }
+.col-amt { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.col-paid { white-space: nowrap; }
+.col-note { color: #888; font-size: 0.82rem; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; color: white; text-transform: capitalize; }
+.badge-shared     { background: #546e7a; }
+.badge-p1         { background: #1565c0; }
+.badge-p2         { background: #6a1b9a; }
+
+.type-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+
+.empty-day { padding: 1.2rem 1.4rem; color: #bbb; font-size: 0.85rem; font-style: italic; }
+
+/* Summary */
+.summary { background: white; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.09); padding: 1.8rem; margin-top: 1.5rem; }
+.summary > h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.4rem; }
+
+.summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+.section-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: .6px; color: #999; font-weight: 700; margin-bottom: 0.9rem; }
+
+.person-card { border: 1.5px solid #eef; border-radius: 9px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+.person-card:last-child { margin-bottom: 0; }
+.person-name { font-weight: 700; font-size: 0.95rem; color: #1a1a2e; margin-bottom: 0.55rem; }
+.person-row { display: flex; justify-content: space-between; font-size: 0.83rem; color: #666; padding: 2px 0; }
+.person-total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 1.05rem;
+  margin-top: 0.55rem; padding-top: 0.55rem; border-top: 1.5px solid #eee; color: #1a1a2e; }
+
+.type-row { display: flex; align-items: center; padding: 7px 0; border-bottom: 1px solid #f5f5f5; gap: 10px; }
+.type-row:last-child { border-bottom: none; }
+.type-name { font-size: 0.87rem; min-width: 120px; text-transform: capitalize; display: flex; align-items: center; }
+.bar-wrap { flex: 1; height: 8px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; }
+.type-amt { font-size: 0.87rem; font-weight: 600; min-width: 65px; text-align: right; }
+
+.grand-row { margin-top: 1rem; padding-top: 0.8rem; border-top: 2px solid #eee;
+  display: flex; justify-content: space-between; font-size: 1.05rem; font-weight: 700; color: #1a1a2e; }
+
+.person-paid-row { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.87rem;
+  margin-top: 3px; padding: 2px 0; color: #2e7d32; }
+
+.settlement-card { margin-top: 1rem; padding: 0.85rem 1.2rem; background: #f0f7ff;
+  border: 1.5px solid #bbdefb; border-radius: 9px; font-size: 0.9rem; color: #1565c0; line-height: 1.5; }
+.settlement-amt { font-weight: 700; font-size: 1.05rem; }
+
+@media (max-width: 700px) {
+  .summary-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Expenses</h1>
+  <p>9 days 8 nights &nbsp;·&nbsp; Cincinnati → Denver → Las Vegas &nbsp;·&nbsp; 4 National Parks</p>
+</div>
+
+<div class="container" id="app"></div>
+
+<script>
+// ─── EDIT HERE ──────────────────────────────────────────────────────────────
+
+const CONFIG = {
+  person1: "刘晋通",   // e.g. "Alice"
+  person2: "夏永康",   // e.g. "Bob"
+};
+
+// paid:  "shared" = split 50/50 | "p1" = Person 1 only | "p2" = Person 2 only
+// payer: "p1" | "p2"  — who actually paid the bill (used to calculate the settlement transfer)
+// type:  "dining" | "accommodation" | "gas" | "travelling" | "others"
+
+const EXPENSES = [
+  // Day 1 — Cincinnati → Denver
+  // { day: 1, desc: "CVG Airport parking", amount: 84.79, paid: "shared", type: "travelling", note: "" },
+  { day: 1, desc: "Super.com", amount: 93.99, paid: "shared", type: "accommodation", note: "" },
+  { day: 1, desc: "CVG Airport", amount: 84.79, paid: "shared", type: "travelling", note: "Parking" },
+  { day: 1, desc: "Love's Travel Stop", amount: 49.25, paid: "shared", type: "gas", note: "" },
+  { day: 1, desc: "Rice Story", amount: 90.01, paid: "shared", type: "dining", note: "" },
+  { day: 1, desc: "Walmart", amount: 28.07, paid: "shared", type: "others", note: "" },
+
+  // Day 2 — Rocky Mountain National Park
+  // { day: 2, desc: "Rocky Mountain NP pass", amount: 80.00, paid: "shared", type: "travelling", note: "" },
+  { day: 2, desc: "Chipotle", amount: 14.18, paid: "p1", type: "dining", note: "" },
+  { day: 2, desc: "McDonald's", amount: 7.08, paid: "p1", type: "dining", note: "" },
+  { day: 2, desc: "Maverik", amount: 24.99, paid: "shared", type: "gas", note: "" },
+  { day: 2, desc: "Rocky Mountain National Park", amount: 80.00, paid: "shared", type: "travelling", note: "Annual Pass" },
+
+  // Day 3 — Arches National Park
+  // { day: 3, desc: "Arches NP pass", amount: 6.43, paid: "shared", type: "travelling", note: "" },
+  { day: 3, desc: "Abajo Lodge", amount: 122.27, paid: "shared", type: "accommodation", note: "Previous day's hotel" },
+  { day: 3, desc: "Super.com", amount: 109.92, paid: "shared", type: "accommodation", note: "" },
+  { day: 3, desc: "Arches National Park", amount: 6.43, paid: "p1", type: "others", note: "Souvenier" },
+  { day: 3, desc: "Gustavo's Mexican Restaurant", amount: 51.58, paid: "shared", type: "dining", note: "" },
+  { day: 3, desc: "Shell Gas", amount: 7.12, paid: "shared", type: "others", note: "Snack" },
+  { day: 3, desc: "Shell Gas", amount: 22.02, paid: "shared", type: "gas", note: "" },
+
+  // Day 4 — Bryce National Park
+  // { day: 4, desc: "", amount: 0, paid: "shared", type: "others", note: "" },
+  { day: 4, desc: "Green River Truck Stop", amount: 12.45, paid: "p1", type: "dining", note: "Arby's" },
+  { day: 4, desc: "Blue Mountain Foods", amount: 19.06, paid: "shared", type: "others", note: "Supermarket" },
+  { day: 4, desc: "Exxon", amount: 29.76, paid: "shared", type: "gas", note: "" },
+  { day: 4, desc: "Phillips 66", amount: 14.95, paid: "shared", type: "gas", note: "" },
+  { day: 4, desc: "Phillips 66", amount: 21.64, paid: "shared", type: "gas", note: "" },
+
+  // Day 5 — Zion + Las Vegas
+  // { day: 5, desc: "", amount: 0, paid: "shared", type: "others", note: "" },
+  { day: 5, desc: "Super.com", amount: 85.57, paid: "shared", type: "accommodation", note: "" },
+  { day: 5, desc: "Ellis Island Hotel", amount: 45.34, paid: "shared", type: "accommodation", note: "Hotel fee" },
+  { day: 5, desc: "Subway", amount: 18.42, paid: "p1", type: "dining", note: "" },
+  { day: 5, desc: "Cowboys Smokehouse Cafe", amount: 57.56, paid: "shared", type: "dining", note: "Previous day's dinner" },
+  { day: 5, desc: "Chengdu Taste", amount: 59.55, paid: "shared", type: "dining", note: "" },
+
+  // Day 6 — May 25 — Las Vegas
+  { day: 6, desc: "Big B's Texas BBQ", amount: 49.84, paid: "shared", type: "dining", note: "" },
+  { day: 6, desc: "Super.com", amount: 35.69, paid: "shared", type: "accommodation", note: "Cheapest motel" },
+  { day: 6, desc: "Maverik", amount: 38.14, paid: "shared", type: "gas", note: "" },
+  { day: 6, desc: "Recreation.gov", amount: 6.00, paid: "shared", type: "travelling", note: "Lottery" },
+  { day: 6, desc: "Ticketmaster (West NV)", amount: 278.00, paid: "shared", type: "others", note: "4D movie at the Sphere" },
+
+  // Day 7 — May 26 — Zion National Park
+  { day: 7, desc: "Superplus", amount: 15.00, paid: "shared", type: "travelling", note: "Membership to save money" },
+  { day: 7, desc: "Love's Travel Stop", amount: 41.03, paid: "shared", type: "gas", note: "" },
+  { day: 7, desc: "Motel 6", amount: 1.00, paid: "p2", type: "others", note: "Toothbrush" },
+  { day: 7, desc: "Subway", amount: 13.73, paid: "p1", type: "dining", note: "" },
+  { day: 7, desc: "Zion Outfitter", amount: 69.15, paid: "shared", type: "travelling", note: "Gear" },
+  { day: 7, desc: "Zion Outfitter", amount: 40.00, paid: "shared", type: "travelling", note: "Parking" },
+
+  // Day 8 — May 27 — Canyonlands National Park
+  { day: 8, desc: "Super.com", amount: 56.76, paid: "shared", type: "accommodation", note: "Previous day's hotel" },
+  { day: 8, desc: "Super.com", amount: 61.39, paid: "shared", type: "accommodation", note: "" },
+  { day: 8, desc: "Chipotle", amount: 13.53, paid: "p1", type: "dining", note: "" },
+  { day: 8, desc: "Sinclair Oil", amount: 21.11, paid: "shared", type: "gas", note: "" },
+
+  // Day 9 — May 28 — Denver
+  { day: 9, desc: "Valero", amount: 5.85, paid: "shared", type: "others", note: "Bananas / Drink" },
+  { day: 9, desc: "Valero", amount: 25.98, paid: "shared", type: "gas", note: "" },
+  { day: 9, desc: "Rice Story", amount: 65.33, paid: "shared", type: "dining", note: "" },
+];
+
+// ─── END EDIT ───────────────────────────────────────────────────────────────
+
+const DAYS = [
+  { n: 1, title: "Day 1 — Cincinnati → Denver",             sub: "Flight day" },
+  { n: 2, title: "Day 2 — Rocky Mountain National Park",    sub: "" },
+  { n: 3, title: "Day 3 — Arches National Park",            sub: "" },
+  { n: 4, title: "Day 4 — Bryce National Park",             sub: "" },
+  { n: 5, title: "Day 5 — Zion National Park + Las Vegas",  sub: "" },
+  { n: 6, title: "Day 6 — Las Vegas",                       sub: "" },
+  { n: 7, title: "Day 7 — Zion National Park",              sub: "" },
+  { n: 8, title: "Day 8 — Canyonlands National Park",       sub: "" },
+  { n: 9, title: "Day 9 — Denver",                          sub: "Return day" },
+];
+
+const TYPES = ["dining", "accommodation", "gas", "travelling", "others"];
+const TYPE_COLORS = {
+  dining: "#ff7043", accommodation: "#42a5f5", gas: "#66bb6a", travelling: "#ab47bc", others: "#ffa726",
+};
+
+const fmt = n => "$" + n.toFixed(2);
+
+function render() {
+  const p1 = CONFIG.person1, p2 = CONFIG.person2;
+
+  let p1Shared = 0, p1Only = 0, p2Shared = 0, p2Only = 0;
+  let p1Paid = 0, p2Paid = 0;
+  const byType = {};
+  TYPES.forEach(t => byType[t] = 0);
+  let grand = 0;
+
+  const byDay = {};
+  EXPENSES.forEach(e => {
+    if (!byDay[e.day]) byDay[e.day] = [];
+    byDay[e.day].push(e);
+    if (e.amount <= 0) return;
+    grand += e.amount;
+    byType[e.type] = (byType[e.type] || 0) + e.amount;
+    if (e.paid === "shared")   { p1Shared += e.amount / 2; p2Shared += e.amount / 2; }
+    else if (e.paid === "p1") { p1Only += e.amount; }
+    else if (e.paid === "p2") { p2Only += e.amount; }
+    if ((e.payer || "p1") === "p1") p1Paid += e.amount;
+    else                            p2Paid += e.amount;
+  });
+
+  const p1Owes = p1Shared + p1Only;
+  const p2Owes = p2Shared + p2Only;
+  const diff = p1Paid - p1Owes; // positive → p2 owes p1; negative → p1 owes p2
+
+  const maxAmt = Math.max(...Object.values(byType), 1);
+
+  let html = "";
+
+  // Summary first
+  html += `<div class="summary">
+    <h2>Summary</h2>
+    <div class="summary-grid">
+      <div>
+        <div class="section-label">Per Person</div>
+        ${[[p1, p1Shared, p1Only, p1Owes, p1Paid], [p2, p2Shared, p2Only, p2Owes, p2Paid]].map(([name, shared, only, owes, paid]) => `
+          <div class="person-card">
+            <div class="person-name">${name}</div>
+            <div class="person-row"><span>Shared expenses (half)</span><span>${fmt(shared)}</span></div>
+            <div class="person-row"><span>Paid separately</span><span>${fmt(only)}</span></div>
+            <div class="person-total-row"><span>Fair share</span><span>${fmt(owes)}</span></div>
+            <div class="person-paid-row"><span>Total spending</span><span>${fmt(paid)}</span></div>
+          </div>`).join("")}
+        <div class="settlement-card">
+          ${Math.abs(diff) < 0.01
+            ? `✓ All settled — no transfer needed.`
+            : diff > 0
+            ? `→ <strong>${p2}</strong> should transfer <span class="settlement-amt">${fmt(diff)}</span> to <strong>${p1}</strong>`
+            : `→ <strong>${p1}</strong> should transfer <span class="settlement-amt">${fmt(-diff)}</span> to <strong>${p2}</strong>`}
+        </div>
+      </div>
+      <div>
+        <div class="section-label">By Expense Type</div>
+        ${TYPES.map(t => `
+          <div class="type-row">
+            <span class="type-name"><span class="type-dot" style="background:${TYPE_COLORS[t]}"></span>${t}</span>
+            <div class="bar-wrap"><div class="bar-fill" style="width:${(byType[t]/maxAmt*100).toFixed(1)}%;background:${TYPE_COLORS[t]}"></div></div>
+            <span class="type-amt">${fmt(byType[t])}</span>
+          </div>`).join("")}
+        <div class="grand-row"><span>Grand Total</span><span>${fmt(grand)}</span></div>
+      </div>
+    </div>
+  </div>`;
+
+  // Then day sections
+  DAYS.forEach(d => {
+    const rows = (byDay[d.n] || []).filter(e => e.desc || e.amount > 0);
+    const dayTotal = rows.reduce((s, e) => s + (e.amount || 0), 0);
+
+    html += `<div class="day-section">
+      <div class="day-header">
+        <div>
+          <h2>${d.title}</h2>
+          ${d.sub ? `<div class="day-sub">${d.sub}</div>` : ""}
+        </div>
+        <span class="day-total">${fmt(dayTotal)}</span>
+      </div>`;
+
+    if (rows.length === 0) {
+      html += `<div class="empty-day">No expenses recorded.</div>`;
+    } else {
+      html += `<table>
+        <thead><tr>
+          <th>Description</th>
+          <th style="width:95px;text-align:right">Amount</th>
+          <th style="width:130px">Split</th>
+          <th style="width:110px">Payer</th>
+          <th style="width:165px">Type</th>
+          <th>Note</th>
+        </tr></thead>
+        <tbody>`;
+      rows.forEach(e => {
+        const splitLabel = e.paid === "shared" ? "Shared" : e.paid === "p1" ? p1 : p2;
+        const payer = e.payer || "p1";
+        html += `<tr>
+          <td>${e.desc || ""}</td>
+          <td class="col-amt">${fmt(e.amount || 0)}</td>
+          <td class="col-paid"><span class="badge badge-${e.paid}">${splitLabel}</span></td>
+          <td><span class="badge badge-${payer}">${payer === "p1" ? p1 : p2}</span></td>
+          <td><span class="type-dot" style="background:${TYPE_COLORS[e.type] || "#ccc"}"></span>${e.type || ""}</td>
+          <td class="col-note">${e.note || ""}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    html += `</div>`;
+  });
+
+  document.getElementById("app").innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
