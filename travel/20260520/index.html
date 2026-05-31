@@ -69,8 +69,11 @@ tbody tr:hover { background: #fafbff; }
   border: 1.5px solid #bbdefb; border-radius: 9px; font-size: 0.9rem; color: #1565c0; line-height: 1.5; }
 .settlement-amt { font-weight: 700; font-size: 1.05rem; }
 
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
 @media (max-width: 700px) {
   .summary-grid { grid-template-columns: 1fr; }
+  table { min-width: 600px; }
 }
 </style>
 </head>
@@ -267,7 +270,7 @@ function render() {
     if (rows.length === 0) {
       html += `<div class="empty-day">No expenses recorded.</div>`;
     } else {
-      html += `<table>
+      html += `<div class="table-wrap"><table>
         <thead><tr>
           <th>Description</th>
           <th style="width:95px;text-align:right">Amount</th>
@@ -289,7 +292,7 @@ function render() {
           <td class="col-note">${e.note || ""}</td>
         </tr>`;
       });
-      html += `</tbody></table>`;
+      html += `</tbody></table></div>`;
     }
     html += `</div>`;
   });
