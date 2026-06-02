@@ -101,6 +101,7 @@ const CONFIG = {
 const EXPENSES = [
   // Day 1 — Cincinnati → Denver
   // { day: 1, desc: "CVG Airport parking", amount: 84.79, paid: "shared", type: "travelling", note: "" },
+  { day: 1, desc: "Frontier Airlines", amount: 264.96, paid: "p1", type: "travelling", note: "" },
   { day: 1, desc: "Super.com", amount: 93.99, paid: "shared", type: "accommodation", note: "" },
   { day: 1, desc: "CVG Airport", amount: 84.79, paid: "shared", type: "travelling", note: "Parking" },
   { day: 1, desc: "Love's Travel Stop", amount: 49.25, paid: "shared", type: "gas", note: "" },
@@ -130,6 +131,7 @@ const EXPENSES = [
   { day: 4, desc: "Exxon", amount: 29.76, paid: "shared", type: "gas", note: "" },
   { day: 4, desc: "Phillips 66", amount: 14.95, paid: "shared", type: "gas", note: "" },
   { day: 4, desc: "Phillips 66", amount: 21.64, paid: "shared", type: "gas", note: "" },
+  { day: 4, desc: "Brian Head Lodge", amount: 129.99, paid: "shared", payer: "p2", type: "accommodation", note: "" },
 
   // Day 5 — Zion + Las Vegas
   // { day: 5, desc: "", amount: 0, paid: "shared", type: "others", note: "" },
@@ -153,6 +155,7 @@ const EXPENSES = [
   { day: 7, desc: "Subway", amount: 13.73, paid: "p1", type: "dining", note: "" },
   { day: 7, desc: "Zion Outfitter", amount: 69.15, paid: "shared", type: "travelling", note: "Gear" },
   { day: 7, desc: "Zion Outfitter", amount: 40.00, paid: "shared", type: "travelling", note: "Parking" },
+  { day: 7, desc: "Arby's", amount: 20.00, paid: "p1", payer: "p2", type: "dining", note: "" },
 
   // Day 8 — May 27 — Canyonlands National Park
   { day: 8, desc: "Super.com", amount: 56.76, paid: "shared", type: "accommodation", note: "Previous day's hotel" },
@@ -163,7 +166,9 @@ const EXPENSES = [
   // Day 9 — May 28 — Denver
   { day: 9, desc: "Valero", amount: 5.85, paid: "shared", type: "others", note: "Bananas / Drink" },
   { day: 9, desc: "Valero", amount: 25.98, paid: "shared", type: "gas", note: "" },
-  { day: 9, desc: "Rice Story", amount: 65.33, paid: "shared", type: "dining", note: "" },
+  { day: 9, desc: "Rice Story", amount: 65.33, paid: "shared", type: "dining", note: "Previous day's dinner" },
+  { day: 9, desc: "Chipotle", amount: 16.88, paid: "shared", payer: "p2", type: "dining", note: "" },
+  { day: 9, desc: "Enterprise Car Rental", amount: 490.18, paid: "shared", payer: "p2", type: "travelling", note: "" },
 ];
 
 // ─── END EDIT ───────────────────────────────────────────────────────────────
