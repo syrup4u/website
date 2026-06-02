@@ -1,0 +1,22 @@
+
+Generate a HTML with the screenshots to record the cost of a trip, with the following requirements:
+    1. The journey: day 1 flied from Cincinnati to Denver, day 2 travelled to rocky mountains, day 3 - arch national park, day 4 - bryce national park, day 5 - Zion and Las Vegas, day 6 - Las Vegas, day 7 - Zion national park, day 8 - Canyonland national park, day 9 - Denver. Two persons.
+    2. Easy to see and understand every day's cost. The cost should contain the amount of share, separate (by whom), type, and note. I should be able to check and modify if they are incorrect.
+    3. A summary of everyone's split spending, each one's spending (I will mark the ones paid only by me later by modifying the tables), and the distribution of different type of expenses (dining, accommodation, gas, travelling and others).
+
+The title could be:
+    - Expenses
+    - with subtitle like: for 9 days 8 nights travel, from Denver to Las Vegas, 4 national parks.
+
+You can ignore the cost type by using "gas" if you are unsure, I will check them later.
+
+During I add items to the HTML, you can help me do the following:
+    - Read the screenshots in @screenshots. May 20 is the first day, May 28 is the last day. The form of bill statement is easy: Item name and cost, you can ignore the "pay it" or "pending" below the cost.
+    - Save it to a file line by line with the form: `{ day: XXX, desc: "YYY", amount: ZZZ, paid: "shared", type: "others", note: "" }`, you only need to fill three fields as XXX / YYY / ZZZ. Day should be 1-9.
+
+=====
+
+Three updates:
+    1. I want to add a new column: some are paid by me and some are paid by my friend, even it's shared. So maybe a new column `payer` would be good. Finally in summary, a new row: `total spending` can show how much a person pay, so that we can calculate how much one should transfer to the other person.
+    2. The column `type`, when the type is "accommodation", the column is too narrow to hold this word, maybe widen it a little.
+    3. Make the summary above the details.
